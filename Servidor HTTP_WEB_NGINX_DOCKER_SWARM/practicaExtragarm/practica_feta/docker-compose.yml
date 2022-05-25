@@ -1,0 +1,111 @@
+version: "3.8"
+services:
+  s1:
+    image: rubeeenrg/extagram:s1
+    #container_name: s1.edt.org
+    #hostname: s1.edt.org
+    #labels: s1.edt.org 
+    build: 
+      context: s1
+      dockerfile: Dockerfile
+    ports:
+      - "443:443"
+    expose: 
+      - "443"    
+    networks:
+      - 2hisix
+        #restart: always
+    secrets: 
+      - source: nginx_key
+        target: /run/secrets/site.key
+      - source: nginx_pem
+        target: /run/secrets/site.pem
+    #depends_on:
+     #- s2
+     #- s4s5
+     #- s6
+  s2:
+    image: rubeeenrg/extagram:s2s3
+    #hostname: s2s3.edt.org
+    #labels: s2s3.edt.org
+    deploy:
+      replicas: 2
+    build: 
+        context: s2s3
+        dockerfile: Dockerfile
+    networks:
+      2hisix:
+        aliases:
+          - s2s3
+            #restart: always
+    #depends_on:
+     #- s7
+  s4s5:
+    image: rubeeenrg/extagram:s4s5
+    #container_name: s4s5.edt.org
+    #hostname: s4s5.edt.org
+    #labels: s4s5.edt.org
+    deploy:
+      replicas: 2
+      placement: 
+        constraints: 
+          - "node.labels.storage==yes"
+    build: 
+      context: s4s5
+      dockerfile: Dockerfile
+    volumes:
+      - /var/tmp/uploads:/var/www/html/uploads
+    networks:
+     - 2hisix
+       #restart: always
+    #depends_on:
+     #- s7
+  s6:
+    image: rubeeenrg/extagram:s6
+    #container_name: s6.edt.org
+    #hostname: s6.edt.org
+    #labels: s6.edt.org
+    #build: 
+    #  context: s6
+    #  dockerfile: Dockerfile
+    networks:
+     - 2hisix
+       #restart: always
+      #configs:
+      #- source: s6_nginx_conf
+      #  target: /etc/nginx/conf.d/default.conf
+  s7:
+    image: rubeeenrg/extagram:s7
+    #container_name: s7.edt.org
+    #hostname: s7.edt.org
+    #labels: s7.edt.org
+    # build: 
+    #  context: s7
+    #  dockerfile: Dockerfile
+    deploy:
+      placement: 
+        constraints: 
+          - "node.labels.database==yes"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: extagram_db
+      MYSQL_USER: extagram_admin
+      MYSQL_PASSWORD: pass123
+    volumes:
+      - /var/tmp/dbdata:/var/lib/mysql
+    networks:
+      2hisix:
+        aliases:
+          - db.extagram.edt
+            #restart: always 
+networks:
+  2hisix:
+    driver: overlay
+secrets:
+  nginx_key: 
+    file: s1/site.key
+  nginx_pem:
+    file: s1/site.pem 
+      #configs:
+      #s6_nginx_conf:
+      #file: ./s6/default.conf

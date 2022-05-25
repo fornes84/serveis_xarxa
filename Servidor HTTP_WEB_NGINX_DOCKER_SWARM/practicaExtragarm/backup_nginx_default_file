@@ -1,0 +1,15 @@
+#/etc/nginx/sites-enabled/default
+upstream balancer {
+	server 192.168.122.209:2022;
+	server 192.168.122.55:2022;
+}
+
+server {
+	root /var/www/html;
+	location / {
+		fastcgi_pass balancer;
+		#fastcgi_pass 192.168.122.209:2022;
+		include fastcgi.conf;
+			}
+}
+

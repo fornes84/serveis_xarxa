@@ -1,0 +1,46 @@
+server {
+	listen 443 ssl;
+	ssl_certificate_key /run/secrets/site.key;
+	ssl_certificate /run/secrets/site.pem;
+
+	root /var/www/html;
+
+	rewrite ^/$ /extagram.php last;
+	rewrite ^(.*)$ $1.php;
+	
+	location ~ extagram\.php$ {
+		fastcgi_pass s2:9000;
+		include fastcgi.conf;
+	}
+
+	location ~ upload\.php$ {
+		fastcgi_pass s4s5:9000;
+		include fastcgi.conf;
+	}
+}
+
+server {
+	server_name static.extagram.edt;
+	listen 443 ssl;
+	ssl_certificate_key /run/secrets/site.key;
+	ssl_certificate /run/secrets/site.pem;
+
+	root /var/www/html;	
+	
+	location / {
+		proxy_pass http://s6;
+	}	
+}
+
+server {
+	server_name storage.extagram.edt;
+	listen 443 ssl;
+	ssl_certificate_key /run/secrets/site.key;
+	ssl_certificate /run/secrets/site.pem;
+
+	root /var/www/html;	
+	
+	location / {
+		proxy_pass http://s4s5;
+	}	
+}
