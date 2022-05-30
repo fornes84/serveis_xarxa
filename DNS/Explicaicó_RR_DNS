@@ -1,0 +1,27 @@
+https://www.fpgenred.es/DNS/ficheros_de_zona_y_registros_de_recursos.html
+
+#EXEMPLE ARXIU --> db.torvalds.elpuig.xeill.net
+
+
+$ttl 38400
+@	IN      SOA     proxy admin.elpuig.xeill.net. (
+                        1      ; Serial
+                        10800  ; Refresh
+                        3600   ; Retry
+                        604800 ; Expire
+                        38400  ; Minimum TTL
+                        )
+
+@	IN	NS 	proxy
+proxy	IN	A	192.168.10.10
+
+
+
+
+En este archivo de zona hay que notar:
+
+    -El carácter @ equivale al dominio que se esté definiendo acabado en punto. Aquí torvalds.elpuig.xeill.net.
+    -El campo admin.elpuig.xeill.net. corresponde al correo de contacto para indicar errores en la zona y se interpreta como admin@elpuig.xeill.net
+    -Es importante incrementar el valor 'Serial' cada vez que se hace una modificación.
+    -Cuando se escribe un string como proxy sin acabar en . se entenderá que hay que añadir la zona que se está definiendo al nombre. En este caso escribir proxy equivale a proxy.torvalds.elpuig.xeill.net.
+
